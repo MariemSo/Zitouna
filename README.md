@@ -26,9 +26,21 @@ To contribute your own recipes to Zitouna, users must:
 - Participate in discussions, share tips, or engage with other users to build a reputation.
 - Once a user has demonstrated a certain level of activity, they will gain the ability to add and share their recipes with the community.
 
+## Technologies Used
+- **HTML/CSS**: For structuring and styling the website.
+- **TypeScript**: For writing scalable and maintainable code.
+- **React**: For building the user interface.
+- **Node.js**: For server-side logic.
+- **PostgreSQL**: For database management.
+- **Prisma**: For database access and ORM (Object-Relational Mapping).
+- **Material-UI**: For implementing user interface components and styles.
+
+## Additional Resources
+- [Miro Board](https://miro.com/app/board/uXjVLV8bSWM=/?share_link_id=380673131848) - A visual collaboration board with ideas and designs for Zitouna.
+
 ## Contributors
-- **Meik Brüssow** - Mentor
-- **Safwan** - Teacher
+- **Safwan** - _StarSteps_ _Mentor_
+- **Meik Brüssow** - _AxelSpringer_ _Mentor_
 
 ## License
 All content on Zitouna is available for personal use only. Users are encouraged to share recipes and ideas while providing credit to the original authors. For more details, please contact us.
