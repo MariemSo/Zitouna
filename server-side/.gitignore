@@ -1,1 +1,14 @@
+.# Node.js
+node_modules
+dist/
 .env
+*.log
+
+# IDEs and editors
+.idea/
+.vscode/
+*.swp
+
+# OS-specific files
+.DS_Store
+Thumbs.db
