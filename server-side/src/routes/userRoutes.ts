@@ -1,8 +1,13 @@
-import Router , {Request,Response} from "express";
-const router = Router();
+import { Router } from "express";
 
-router.get("/", (req:Request, res:Response) => {
-    res.send('hello world');
-})
+const userRoutes = Router();
 
-export default router;
+userRoutes.get("/", (req, res) => {
+  res.json({ message: "User endpoint works!" });
+});
+
+userRoutes.post("/register");
+userRoutes.post("/login");
+userRoutes.get("/profile");
+
+export default userRoutes;
