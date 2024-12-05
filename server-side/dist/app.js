@@ -4,11 +4,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const cors_1 = __importDefault(require("cors"));
 const userRoutes_1 = __importDefault(require("./Routes/userRoutes"));
-const dotenv_1 = __importDefault(require("dotenv"));
-dotenv_1.default.config();
+const recipeRoutes_1 = __importDefault(require("./Routes/recipeRoutes"));
 const app = (0, express_1.default)();
-app.use('/', userRoutes_1.default.hello);
-app.listen(process.env.PORT || 3000, () => {
-    console.log('listening on port ' + process.env.PORT || 3000);
+//Middleware
+app.use((0, cors_1.default)());
+app.use(express_1.default.json());
+app.get("/", (req, res) => {
+    res.status(200).send("Welcome to Zitouna Tunisian Food API!");
 });
+app.use("/api/users", userRoutes_1.default);
+app.use("/api/recipes", recipeRoutes_1.default);
+app.use((error, req, res, next) => {
+    res.status(500).json({ error: error.message });
+});
+exports.default = app;
+//# sourceMappingURL=app.js.map
