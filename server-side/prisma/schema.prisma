@@ -30,47 +30,63 @@ model User {
   phoneNumber Int?
   role        Role     @default(USER)
   createdAt   DateTime @default(now())
+  Recipe      Recipe[]
 }
 
-// Not migrated =>
-// model Recipe {
-//   id         Int      @id @default(autoincrement())
-//   name       String
-//   coverImage String   @default("") //ADD default image
-//   prepTime   Int
-//   spiciness  Int
-//   createdAt  DateTime @default(now())
-//   updated_at DateTime @default(now())
-// }
-//
-// model Step {
-//   id          Int    @id @default(autoincrement())
-//   stepNumber  Int
-//   description String
-// }
-//
-// model RecipeIngredients {
-//   id       Int    @id @default(autoincrement())
-//   quantity Int
-//   unit     String
-// }
-//
-// model Ingredient {
-//   id   Int    @id @default(autoincrement())
-//   name String
-//   icon String
-// }
-//
-// model Category {
-//   id   Int    @id @default(autoincrement())
-//   name String
-//   icon String
-// }
-//
-// model Comment {
-//   id        Int      @id @default(autoincrement())
-//   text      String
-//   createdAt DateTime @default(now())
-//   createdAt DateTime @default(now())
-// }
-//
+model Recipe {
+  id          Int                 @id @default(autoincrement())
+  name        String
+  coverImage  String              @default("") //ADD default image
+  prepTime    Int
+  spiciness   Int
+  createdAt   DateTime            @default(now())
+  updated_at  DateTime            @default(now())
+  ingredients RecipeIngredients[]
+  categoryId  Int
+  category    Category            @relation(fields: [categoryId], references: [id])
+  createdBy   Int
+  user        User                @relation(fields: [createdBy], references: [id])
+  Step        Step[]
+  Comment     Comment[]
+}
+
+model Step {
+  id          Int    @id @default(autoincrement())
+  stepNumber  Int
+  description String
+  recipeId    Int
+  recipe      Recipe @relation(fields: [recipeId], references: [id])
+}
+
+model RecipeIngredients {
+  id           Int        @id @default(autoincrement())
+  quantity     Int
+  unit         String
+  ingredientId Int
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+  recipeId     Int
+  recipe       Recipe     @relation(fields: [recipeId], references: [id])
+}
+
+model Ingredient {
+  id      Int                 @id @default(autoincrement())
+  name    String
+  icon    String
+  recipes RecipeIngredients[]
+}
+
+model Category {
+  id      Int      @id @default(autoincrement())
+  name    String
+  icon    String
+  recipes Recipe[]
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  text      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  recipeId  Int
+  recipe    Recipe   @relation(fields: [recipeId], references: [id])
+}

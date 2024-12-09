@@ -8,10 +8,6 @@ import {updateProfileValidators} from "../middlewares/validators/userValidators/
 
 const userRoutes = Router();
 
-userRoutes.get("/", (req, res) => {
-  res.json({ message: "User endpoint works!" });
-});
-
 userRoutes.post("/register",registerValidators,validateRequest,userController.register);
 userRoutes.post("/login",loginValidators,validateRequest,userController.login);
 userRoutes.get("/profile", authenticate,userController.getProfile);

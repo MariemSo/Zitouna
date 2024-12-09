@@ -1,10 +1,10 @@
-import express from "express";
+import {Request,Response} from "express";
 import bcrypt from 'bcrypt';
 import prisma from "../prisma/prisma";
 import jwt from 'jsonwebtoken';
 
 
-const register = async (req: express.Request, res: express.Response) => {
+const register = async (req: Request, res: Response) => {
     const {userName,firstName, lastName, email, password, phoneNumber,address} = req.body;
     try{
         const userExists = await prisma.user.findUnique({where: {email}})
@@ -33,7 +33,7 @@ const register = async (req: express.Request, res: express.Response) => {
         res.status(500).send({success: false, message: 'Internal server error.', err })    }
 }
 
-const login = async (req: express.Request, res: express.Response) => {
+const login = async (req: Request, res: Response) => {
     const {email,password}= req.body
     if(!email || !password){
         res.status(401).json({success:false,error:"Email and password are required."})
@@ -80,7 +80,7 @@ const login = async (req: express.Request, res: express.Response) => {
     }
 }
 
-const getProfile = async (req: express.Request, res: express.Response) => {
+const getProfile = async (req: Request, res: Response) => {
     const userId = req.user?.id;
 
     if (!userId) {
@@ -114,7 +114,7 @@ const getProfile = async (req: express.Request, res: express.Response) => {
     }
 }
 
-const updateProfile = async (req: express.Request, res: express.Response) => {
+const updateProfile = async (req: Request, res: Response) => {
     const userId=req.user?.id;
 
     if(!userId){

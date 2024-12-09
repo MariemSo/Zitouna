@@ -9,9 +9,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get("/", (req: Request, res: Response) => {
-  res.status(200).send("Welcome to Zitouna Tunisian Food API!");
-});
 app.use("/api/users", userRoutes);
 app.use("/api/recipes", recipesRouter);
 
