@@ -18,8 +18,8 @@ const recipesCreationValidator =[
         .withMessage('Preparation time must be a positive integer.'),
     body('spiciness')
         .optional()
-        .isInt({ min: 0, max: 10 })
-        .withMessage('Spiciness must be an integer between 0 and 10.'),
+        .isInt({ min: 0, max: 5 })
+        .withMessage('Spiciness must be an integer between 0 and 5.'),
     body('steps')
         .optional()
         .isArray()

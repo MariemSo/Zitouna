@@ -9,5 +9,6 @@ const recipesRouter = Router();
 recipesRouter.post('/createRecipe',authenticate,recipesCreationValidator,validateRequest ,recipeController.createRecipe)
 recipesRouter.get('/:id',recipeController.getOneReById);
 recipesRouter.put('/:id',authenticate,recipesCreationValidator,validateRequest,recipeController.updateRecipe)
+recipesRouter.delete('/:id',authenticate,recipeController.deleteRecipe);
 
 export default recipesRouter;
