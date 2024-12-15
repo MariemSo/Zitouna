@@ -1,6 +1,17 @@
 import {Prisma} from "@prisma/client";
 
-type IRecipe = Prisma.RecipeGetPayload<{}>
+type IRecipe = Omit<Prisma.RecipeGetPayload<{}>, 'createdAt'>;
+
+interface  FullRecipe {
+    name: string,
+    coverImage: string,
+    prepTime: number,
+    spiciness: number,
+    categoryId: number,
+    createdBy:number,
+    steps:StepInput[],
+    ingredients: IngredientInput[],
+}
 
 type StepInput = {
     stepNumber: number;
@@ -15,4 +26,5 @@ type IngredientInput = {
 
 type CategoryInput = number;
 
-export { IngredientInput, CategoryInput ,StepInput,IRecipe };
+
+export { IngredientInput, CategoryInput ,StepInput,IRecipe,FullRecipe };

@@ -23,7 +23,7 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
         });
     }
     catch(error){
-        res.status(401).json({ success:false, error: error });
+        res.status(401).json({ success:false, message: 'Access Denied',error: error });
         return;
     }
 }

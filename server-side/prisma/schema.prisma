@@ -36,7 +36,7 @@ model User {
 model Recipe {
   id          Int                 @id @default(autoincrement())
   name        String
-  coverImage  String              @default("") //ADD default image
+  coverImage  String              @default("") // ADD default image
   prepTime    Int
   spiciness   Int
   createdAt   DateTime            @default(now())
@@ -46,8 +46,8 @@ model Recipe {
   category    Category            @relation(fields: [categoryId], references: [id])
   createdBy   Int
   user        User                @relation(fields: [createdBy], references: [id])
-  Step        Step[]
-  Comment     Comment[]
+  steps       Step[]
+  comments    Comment[]
 }
 
 model Step {
