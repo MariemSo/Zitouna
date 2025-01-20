@@ -38,7 +38,7 @@ To contribute your own recipes to Zitouna, users must:
 ## Additional Resources
 - [Miro Board](https://miro.com/app/board/uXjVLV8bSWM=/?share_link_id=380673131848) - A visual collaboration board with ideas and designs for Zitouna.
 
-## Contributors
+## Mentors
 - **Safwan** - _StarSteps_ _Mentor_
 - **Meik Brüssow** - _AxelSpringer_ _Mentor_
 
