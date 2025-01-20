@@ -1,11 +1,13 @@
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
-import userRoutes from "./Routes/userRoutes";
-import recipesRouter from "./Routes/recipeRoutes";
-import commentsRouter from "./Routes/commentRoutes";
+import userRoutes from "./routes/userRoutes";
+import recipesRouter from "./routes/recipeRoutes";
+import commentsRouter from "./routes/commentRoutes";
+import swaggerDocs from "./docs/swaggerDocs";
+import swaggerUi from 'swagger-ui-express';
 
 const app = express();
-
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 //Middleware
 app.use(cors());
 app.use(express.json());
