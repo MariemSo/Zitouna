@@ -11,26 +11,20 @@ const postComment = async (req: Request, res: Response) => {
   const recipeId = parseInt(req.params.recipeId);
   const { text } = req.body;
 
+  if (!userId) {
+    res.status(400).json({ success: false, message: "Unauthorized: User not logged in" });
+    return;
+  }
   try {
-    if (!userId) {
-      res.status(400).send({ success: false, message: "Access denied" });
-      return;
-    }
     const newComment = await postCommentService(text, userId, recipeId);
-    if (!newComment) {
-      res
-        .status(400)
-        .send({ success: false, message: "Error creating comment" });
-      return;
-    }
-    res.status(200).send({
+    res.status(201).json({
       success: true,
       message: "Comment Posted Successfully",
       newComment,
     });
   } catch (err) {
-    console.error(err);
-    res.status(400).send({
+    console.error("Error posting comment",err);
+    res.status(500).json({
       success: false,
       message: "Something went wrong in Post Comment",
       error: err,
@@ -43,37 +37,23 @@ const editComment = async (req: Request, res: Response) => {
   const commentId = parseInt(req.params.commentId);
   const { text } = req.body;
 
-  try {
     if (!userId) {
-      res.status(400).send({ success: false, message: "Access Denied" });
+      res.status(400).json({ success: false, message: "Unauthorized: User not logged in" });
       return;
     }
-
+  try {
     const editedComment = await editCommentService(userId, commentId, text);
-    if (!editedComment) {
-      res
-        .status(400)
-        .send({ success: false, message: "Error editing comment" });
-      return;
-    }
-    res.status(200).send({
+    res.status(200).json({
       success: true,
-      message: "Comment edited",
+      message: "Comment edited Successfully",
       editedComment,
     });
   } catch (err: any) {
-    if (err.code) {
-      res.status(400).send({
-        success: false,
-        message: err.message,
-        error: err,
-      });
-    } else {
-      res.status(500).send({
-        success: false,
-        message: "Something went wrong in editing Comment",
-      });
-    }
+    console.error("Error editing comment:", err);
+    res.status(err.code === "ERR404" ? 404 : 500).json({
+      success: false,
+      message: err.message || "Internal server error",
+    });
   }
 };
 
@@ -83,32 +63,32 @@ const getComments = async (req: Request, res: Response) => {
   try {
     const comments = await getCommentService(recipeId);
 
-    res.status(200).send({
+    res.status(200).json({
       success: true,
-      message: "Comment successfully fetched ",
+      message: "Comment fetched successfully  ",
       comments,
     });
   } catch (err) {
-    console.error(err);
-    res.status(400).send({ success: false, message: "Error getting comments" });
+    console.error("Error fetching comments:",err);
+    res.status(500).json({ success: false, message: "Error getting comments" });
   }
 };
 
 const deleteComment = async (req: Request, res: Response) => {
   const userId = req.user?.id;
   const commentId = parseInt(req.params.commentId);
-  try {
     if (!userId) {
-      res.status(400).send({ success: false, message: "Access Denied" });
+      res.status(401).json({ success: false, message: "Unauthorized: User not logged in" });
       return;
     }
+  try {
     const deletedComment = await deleteCommentService(commentId, userId);
-    res.status(200).send({success: true, message: "Comment deleted", deletedComment });
+    res.status(200).json({success: true, message: "Comment deleted successfully", deletedComment });
   } catch (err) {
-    console.error(err);
+    console.error("Error deleting comment:",err);
     res
-      .status(400)
-      .send({ success: false, message: "Error deleting comment", error: err });
+      .status(500)
+      .json({ success: false, message: "Error deleting comment", error: err });
   }
 };
 export default { postComment, editComment, getComments,deleteComment };

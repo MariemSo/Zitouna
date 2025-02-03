@@ -1,17 +1,21 @@
 import prisma from "../prisma/prisma";
 import { FullRecipe, IngredientInput, StepInput } from "../types/recipeTypes";
+import { Prisma } from "@prisma/client";
+import {
+  updateRecipeMetadata,
+  updateRecipeSteps,
+  updateRecipeIngredients
+} from "../utils/recipeUtils";
+import {throwError} from "../utils/serviceUtils";
 
 const createRecipeService = async (userId: number, input: FullRecipe) => {
-  const {
-    name,
-    coverImage,
-    prepTime,
-    spiciness,
-    categoryId,
-    steps,
-    ingredients,
-  } = input;
+  try{
 
+  const {name,coverImage, prepTime,spiciness, categoryId,steps, ingredients } = input;
+
+  if(!name||!steps||!ingredients){
+    throwError("Name, steps, and ingredients are required", "ERR400");
+  }
   return prisma.recipe.create({
     data: {
       name,
@@ -35,109 +39,126 @@ const createRecipeService = async (userId: number, input: FullRecipe) => {
       },
     },
   });
+  }catch(err) {
+    console.error("Error creating recipe:", err);
+    throwError("Database error while creating the recipe", "ERR500");
+  }
 };
 
 const getRecipeByIdService = async (recipeId: number) => {
-  return prisma.recipe.findUnique({
-    where: {
-      id: recipeId,
-    },
-    include: {
-      steps: true,
-      ingredients: {
-        include: { ingredient: true },
+  try{
+    return prisma.recipe.findUnique({
+      where: {
+        id: recipeId,
       },
-      category: true,
-      user: {
-        select: {
-          userName: true,
+      include: {
+        steps: true,
+        ingredients: {
+          include: { ingredient: true },
+        },
+        category: true,
+        user: {
+          select: {
+            userName: true,
+          },
         },
       },
-    },
   });
+  }catch (err: any) {
+    console.error("Error Fetching recipe:", err);
+    throwError("Database error while fetching recipe:", "ERR500");
+  }
+};
+
+const getAllRecipesService = async (filters: any) => {
+  try {
+    const { category, name, likes } = filters;
+    const whereFilters: Prisma.RecipeWhereInput = {};
+
+    if (category) {
+      const categoryData = await prisma.category.findFirst({ where: { name: category }, select: { id: true } });
+      if (categoryData) whereFilters.categoryId = categoryData.id;
+    }
+
+    if (name) {
+      whereFilters.name = { contains: name, mode: "insensitive" };
+    }
+
+    const orderBy = likes ? [{ likes: likes === "desc" ? "desc" : "asc" }] : undefined;
+
+    return await prisma.recipe.findMany({ where: whereFilters, orderBy });
+  } catch (err) {
+    console.error("Error fetching recipes:", err);
+    throw new Error("Database error while retrieving recipes");
+  }
 };
 
 const updateRecipeService = async (
-  recipeId: number,
-  userId: number,
-  input: FullRecipe,
+    recipeId: number,
+    userId: number,
+    input: FullRecipe
 ) => {
-  const {
-    name,
-    coverImage,
-    prepTime,
-    spiciness,
-    categoryId,
-    steps,
-    ingredients,
-  } = input;
+  try{
+    const recipe = await prisma.recipe.findUnique({
+      where: { id: recipeId },
+      include: { steps: true, ingredients: true },
+    });
 
-  const recipe = await prisma.recipe.findUnique({
-    where: { id: recipeId },
-  });
+    if (!recipe) {
+      throwError("Recipe not found", "ERR404");
+      return
+    }
+    if (recipe.createdBy !== userId)
+      throwError(
+        "Forbidden: Only the recipe creator can modify this recipe",
+        "ERR403",
+      );
 
-  if (!recipe) {
-    throw new Error("No recipe found");
-  } else if (recipe.createdBy !== userId) {
-    throw new Error("You are not authorized to update this recipe");
+    return prisma.$transaction(async (prisma) => {
+      await updateRecipeMetadata(prisma, recipeId, input);
+      await updateRecipeSteps(prisma, recipeId, input.steps);
+      await updateRecipeIngredients(prisma, recipeId, input.ingredients);
+
+      return prisma.recipe.findUnique({
+        where: { id: recipeId },
+        include: {
+          steps: true,
+          ingredients: { include: { ingredient: true } },
+        },
+      });
+    });
+  }catch (err: any) {
+    console.error("Error updating recipe:", err);
+    throwError("Database error while retrieving recipes","ERR500");
   }
-
-  const updatedRecipe = await prisma.recipe.update({
-    where: { id: recipeId },
-    data: {
-      name,
-      coverImage,
-      prepTime,
-      spiciness,
-      categoryId,
-    },
-  });
-
-  // Update steps
-  if (steps && steps.length > 0) {
-    await prisma.step.deleteMany({
-      where: { recipeId },
-    });
-
-    await prisma.step.createMany({
-      data: steps.map((step: StepInput) => ({
-        recipeId,
-        stepNumber: step.stepNumber,
-        description: step.description,
-      })),
-    });
-  }
-
-  if (ingredients && ingredients.length > 0) {
-    await prisma.recipeIngredients.deleteMany({
-      where: { recipeId },
-    });
-
-    await prisma.recipeIngredients.createMany({
-      data: ingredients.map((ingredient: IngredientInput) => ({
-        recipeId,
-        ingredientId: ingredient.ingredientId,
-        quantity: ingredient.quantity,
-        unit: ingredient.unit,
-      })),
-    });
-  }
-
-  return updatedRecipe;
 };
 
+
 const deleteRecipeService = async (recipeId: number, userId: number) => {
-  return prisma.recipe.delete({
-    where: {
-      id: recipeId,
-      createdBy: userId,
-    },
-  });
+  try{
+    const recipe = await prisma.recipe.findUnique({ where: { id: recipeId } });
+
+    if (!recipe) {
+      throwError("Recipe not found", "ERR404");
+      return;
+    }
+    if (recipe.createdBy !== userId) throwError("Forbidden: Only the recipe creator can delete this recipe", "ERR403");
+
+    return prisma.recipe.delete({
+      where: {
+        id: recipeId,
+      },
+    });
+  }catch (err: any) {
+    console.error("Error deleting recipe:", err);
+    throwError("Database error while deleting the recipe", "ERR500");
+  }
 };
 
 export {
   createRecipeService,
   getRecipeByIdService,
+  getAllRecipesService,
   updateRecipeService,
   deleteRecipeService,
 };

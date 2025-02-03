@@ -1,11 +1,10 @@
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
-import userRoutes from "./Routes/userRoutes";
-import recipesRouter from "./Routes/recipeRoutes";
 import commentsRouter from "./Routes/commentRoutes";
+import recipesRouter from "./Routes/recipeRoutes";
+import userRoutes from "./Routes/userRoutes";
 
 const app = express();
-
 //Middleware
 app.use(cors());
 app.use(express.json());

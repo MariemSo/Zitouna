@@ -6,25 +6,39 @@ import {
   updateRecipeValidator,
 } from "../middlewares/validators/recipeValidator";
 import { validateRequest } from "../middlewares/validators/validateRequest";
+import {requireRole} from "../middlewares/roleMiddleware";
 
 const recipesRouter = Router();
 
+
 recipesRouter.post(
-  "/",
-  authenticate,
-  createRecipeValidator,
-  validateRequest,
-  recipeController.createRecipe,
+    "/",
+    authenticate,
+    requireRole(["PREMIUM", "ADMIN"]),
+    createRecipeValidator,
+    validateRequest,
+    recipeController.createRecipe
 );
+
+
 recipesRouter.get("/", recipeController.getAllRecipes);
 recipesRouter.get("/:id", recipeController.getRecipeById);
+
+
 recipesRouter.put(
-  "/:id",
-  authenticate,
-  updateRecipeValidator,
-  validateRequest,
-  recipeController.updateRecipe,
+    "/:id",
+    authenticate,
+    requireRole(["PREMIUM", "ADMIN"]),
+    updateRecipeValidator,
+    validateRequest,
+    recipeController.updateRecipe
 );
-recipesRouter.delete("/:id", authenticate, recipeController.deleteRecipe);
+
+recipesRouter.delete(
+    "/:id",
+    authenticate,
+    requireRole(["PREMIUM", "ADMIN"]),
+    recipeController.deleteRecipe
+);
 
 export default recipesRouter;

@@ -1,135 +1,108 @@
-import prisma from "../prisma/prisma";
 import { Request, Response } from "express";
 import {
   createRecipeService,
   deleteRecipeService,
   getRecipeByIdService,
+  getAllRecipesService,
   updateRecipeService,
 } from "../services/recipeServices";
 
 const createRecipe = async (req: Request, res: Response) => {
   const userId = req.user?.id;
+
   if (!userId) {
-    res.status(400).send({ message: "User does not exist" });
+    res.status(401).json({ message: "Unauthorized: User not logged in" });
     return;
   }
-  const user = await prisma.user.findUnique({ where: { id: userId } });
-
-  if (!user || user.role == "USER") {
-    res.status(400).send({ message: "Permission denied" });
-    return;
-  }
-
   try {
-    const recipeData = req.body;
-    const recipe = await createRecipeService(userId, recipeData);
-
-    res.status(201).json({ message: "Recipe Created Successfully", recipe });
+    const recipe = await createRecipeService(userId, req.body);
+    res.status(201).json({success:true, message: "Recipe created successfully", recipe });
   } catch (err: any) {
-    console.error("Error creating recipe:", err.message);
-    res.status(400).send({ message: "Error in Creating Recipe", err });
+    console.error("Error creating recipe:", err);
+    const statusCode = err.code === "ERR400" ? 400 : 500;
+    res.status(statusCode).json({ success: false, message: err.message });
   }
 };
 
-export const getRecipeById = async (req: Request, res: Response) => {
-  try {
-    let recipeId = parseInt(req.params.id);
-
+const getRecipeById = async (req: Request, res: Response) => {
+    const recipeId = parseInt(req.params.id);
     if (isNaN(recipeId)) {
-      res.status(400).json({ error: "Invalid recipe ID" });
-      return;
+      {
+        res.status(400).json({ success:false, message: "Invalid recipe ID" });
+        return
+      }
     }
-    const oneRecipe = await getRecipeByIdService(recipeId);
-    if (!oneRecipe) {
-      res.status(404).json({ error: "No recipe found" });
-      return;
-    }
-    console.log(oneRecipe);
+  try {
 
-    res
-      .status(200)
-      .json({ message: "Recipe Successfully Retrieved", oneRecipe });
-  } catch (err) {
-    res
-      .status(500)
-      .json({ message: "An error occurred while fetching the recipe", err });
-    return;
+    const recipe = await getRecipeByIdService(recipeId);
+    if (!recipe) {
+      res.status(404).json({success:false,message: "Recipe not found" });
+      return
+    }
+
+    res.status(200).json({success:true, message: "Recipe retrieved successfully", recipe});
+
+  } catch (err: any) {
+    res.status(500).json({success:false, message: "Internal Server Error", error: err.message });
   }
 };
 
-export const getAllRecipes = async (_req: Request, res: Response) => {
+const getAllRecipes = async (req: Request, res: Response) => {
   try {
-    const recipes = await prisma.recipe.findMany();
-    if (recipes.length === 0) {
+    const recipes = await getAllRecipesService(req.query);
+    if (!recipes.length) {
       res.status(404).json({ error: "No recipes found" });
+      return 
     }
-    res.status(200).json(recipes);
-  } catch (err) {
-    res.status(500).json({ error: "Error in Fetching All Recipes", err });
+    res.status(200).json({ success: true, recipes });
+  } catch (err: any) {
+    console.error("Error fetching recipes:", err);
+    res.status(500).json({success:false, message: "Internal Server Error", error: err.message });
   }
 };
 
 const updateRecipe = async (req: Request, res: Response) => {
-  const userId = req.user?.id;
-  const recipeId = parseInt(req.params.id);
-
-  try {
+    const userId = req.user?.id;
+    const recipeId = parseInt(req.params.id);
     if (!userId) {
-      res.status(400).json({ error: "Access Denied" });
-      return;
+      res.status(401).json({ success:false, message: "Unauthorized: User not logged in" });
+      return
     }
     if (isNaN(recipeId)) {
-      res.status(400).json({ error: "Invalid recipe ID" });
-      return;
+      res.status(400).json({ success:false,message: "Invalid recipe ID" });
+      return
     }
-
-    const input = req.body;
-    const updatedRecipe = await updateRecipeService(recipeId, userId, input);
-
-    res
-      .status(200)
-      .json({ message: "Recipe Updated Successfully", updatedRecipe });
-  } catch (err) {
-    res.status(400).json({ error: "Error in Updating Recipe", err });
-    return;
+  try {
+    const updatedRecipe = await updateRecipeService(recipeId, userId, req.body);
+    {
+      res
+        .status(200)
+        .json({success:true, message: "Recipe updated successfully", updatedRecipe });
+    }
+  } catch (err: any) {
+    console.error("Error updating recipe:", err);
+    res.status(500).json({success:false, message: "Internal Server Error", error: err.message });
   }
 };
 
 const deleteRecipe = async (req: Request, res: Response) => {
-  const userId = req.user?.id;
-  const recipeId = parseInt(req.params.id);
+    const userId = req.user?.id;
+    const recipeId = parseInt(req.params.id);
 
-  try {
     if (!userId) {
-      res.status(401).json({ success: false, message: "Access Denied" });
-      return;
+      res.status(401).json({success:false, message: "Unauthorized" });
+      return
     }
-
     if (isNaN(recipeId)) {
-      res.status(400).json({ error: "Invalid recipe ID" });
-      return;
+      res.status(400).json({success:false, message: "Invalid recipe ID" });
+      return
     }
-
-    if (!recipeId) {
-      res.status(404).json({ error: "No recipe found" });
-      return;
-    }
-
-    const recipeToDelete = await deleteRecipeService(recipeId, userId);
-
-    res
-      .status(200)
-      .json({ message: "Recipe deleted successfully", recipeToDelete });
-  } catch (err) {
-    res.status(500).json({ error: "Error in Deleting Recipe", err });
-    return;
+  try {
+    await deleteRecipeService(recipeId, userId);
+    res.status(200).json({success:true, message: "Recipe deleted successfully" });
+  } catch (err: any) {
+    res.status(500).json({success:false, message: "Internal Server Error", error: err.message });
   }
 };
 
-export default {
-  createRecipe,
-  getRecipeById,
-  getAllRecipes,
-  updateRecipe,
-  deleteRecipe,
-};
+export default { createRecipe, getRecipeById, getAllRecipes, updateRecipe, deleteRecipe };

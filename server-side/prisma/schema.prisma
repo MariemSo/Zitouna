@@ -70,10 +70,11 @@ model RecipeIngredients {
 }
 
 model Ingredient {
-  id      Int                 @id @default(autoincrement())
-  name    String
-  icon    String
-  recipes RecipeIngredients[]
+  id             Int                 @id @default(autoincrement())
+  name           String              @unique
+  normalizedName String?             @unique
+  icon           String
+  recipes        RecipeIngredients[]
 }
 
 model Category {

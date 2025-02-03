@@ -7,13 +7,14 @@ const register = async (req: Request, res: Response) => {
     try{
         const userData  = req.body;
         const user = await registerUser(userData);
-        res.status(201).send({
+        res.status(201).json({
             success: true,
             message: 'User Registered Successfully' ,
             user,
         });
     }catch(err){
-        res.status(500).send({success: false, message: 'Internal server error.', err })    }
+        console.error("Error registering user:", err);
+        res.status(500).json({success: false, message: 'Internal server error.', err })    }
 }
 
 const login = async (req: Request, res: Response) => {
@@ -44,7 +45,8 @@ const getProfile = async (req: Request, res: Response) => {
         const user = await getUserProfile(userId);
          res.status(200).json({success:true, user});
     }catch(err){
-         res.status(401).json({ success:false, message: 'Error retrieving profile.',error: err });
+        console.error("Error fetching profile:", err);
+        res.status(401).json({ success:false, message: 'Error retrieving profile.',error: err });
     }
 }
 
