@@ -20,57 +20,77 @@ enum Role {
 }
 
 model User {
-  id          Int      @id @default(autoincrement())
-  email       String   @unique
+  id          Int       @id @default(autoincrement())
+  email       String    @unique
   userName    String?
   firstName   String
   lastName    String
   password    String
   address     String?
   phoneNumber Int?
-  role        Role     @default(USER)
-  createdAt   DateTime @default(now())
+  role        Role      @default(USER)
+  createdAt   DateTime  @default(now())
+  Recipe      Recipe[]
+  Comment     Comment[]
 }
 
-// Not migrated =>
-// model Recipe {
-//   id         Int      @id @default(autoincrement())
-//   name       String
-//   coverImage String   @default("") //ADD default image
-//   prepTime   Int
-//   spiciness  Int
-//   createdAt  DateTime @default(now())
-//   updated_at DateTime @default(now())
-// }
-//
-// model Step {
-//   id          Int    @id @default(autoincrement())
-//   stepNumber  Int
-//   description String
-// }
-//
-// model RecipeIngredients {
-//   id       Int    @id @default(autoincrement())
-//   quantity Int
-//   unit     String
-// }
-//
-// model Ingredient {
-//   id   Int    @id @default(autoincrement())
-//   name String
-//   icon String
-// }
-//
-// model Category {
-//   id   Int    @id @default(autoincrement())
-//   name String
-//   icon String
-// }
-//
-// model Comment {
-//   id        Int      @id @default(autoincrement())
-//   text      String
-//   createdAt DateTime @default(now())
-//   createdAt DateTime @default(now())
-// }
-//
+model Recipe {
+  id          Int                 @id @default(autoincrement())
+  name        String
+  coverImage  String              @default("") // ADD default image
+  prepTime    Int
+  spiciness   Int
+  createdAt   DateTime            @default(now())
+  updated_at  DateTime            @default(now())
+  ingredients RecipeIngredients[]
+  categoryId  Int
+  category    Category            @relation(fields: [categoryId], references: [id])
+  createdBy   Int
+  user        User                @relation(fields: [createdBy], references: [id])
+  steps       Step[]
+  comments    Comment[]
+}
+
+model Step {
+  id          Int    @id @default(autoincrement())
+  stepNumber  Int
+  description String
+  recipeId    Int
+  recipe      Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+}
+
+model RecipeIngredients {
+  id           Int        @id @default(autoincrement())
+  quantity     Int
+  unit         String
+  ingredientId Int
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+  recipeId     Int
+  recipe       Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+}
+
+model Ingredient {
+  id             Int                 @id @default(autoincrement())
+  name           String              @unique
+  normalizedName String?             @unique
+  icon           String
+  recipes        RecipeIngredients[]
+}
+
+model Category {
+  id      Int      @id @default(autoincrement())
+  name    String
+  icon    String
+  recipes Recipe[]
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  text      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  recipeId  Int
+  recipe    Recipe   @relation(fields: [recipeId], references: [id])
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+}
