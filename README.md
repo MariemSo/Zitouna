@@ -35,6 +35,10 @@ To contribute your own recipes to Zitouna, users must:
 - **Prisma**: For database access and ORM (Object-Relational Mapping).
 - **Material-UI**: For implementing user interface components and styles.
 
+## API Documentation
+
+For more details on API routes and controllers, check out the [Zitouna API Documentation.](server-side/README.md)
+
 ## Additional Resources
 - [Miro Board](https://miro.com/app/board/uXjVLV8bSWM=/?share_link_id=380673131848) - A visual collaboration board with ideas and designs for Zitouna.
 
