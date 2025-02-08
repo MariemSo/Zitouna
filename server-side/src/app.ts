@@ -3,6 +3,8 @@ import cors from "cors";
 import commentsRouter from "./Routes/commentRoutes";
 import recipesRouter from "./Routes/recipeRoutes";
 import userRoutes from "./Routes/userRoutes";
+import ingredientsRouter from "./Routes/ingredientsRouter";
+import categoryRoutes from "./Routes/categoryRoutes";
 
 const app = express();
 //Middleware
@@ -11,7 +13,9 @@ app.use(express.json());
 
 app.use("/api/user", userRoutes);
 app.use("/api/recipe", recipesRouter);
+app.use("/api/ingredient", ingredientsRouter);
 app.use("/api/recipe/:recipeId/comment", commentsRouter);
+app.use("/api/category", categoryRoutes);
 
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
   res.status(500).json({ error: error.message });

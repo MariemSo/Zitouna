@@ -43,7 +43,6 @@ For more details on API routes and controllers, check out the [Zitouna API Docum
 - [Miro Board](https://miro.com/app/board/uXjVLV8bSWM=/?share_link_id=380673131848) - A visual collaboration board with ideas and designs for Zitouna.
 
 ## Mentors
-- **Safwan** - _StarSteps_ _Mentor_
 - **Meik Brüssow** - _AxelSpringer_ _Mentor_
 
 ## License
