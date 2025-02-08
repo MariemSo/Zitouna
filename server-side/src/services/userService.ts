@@ -100,6 +100,7 @@ const getUserProfile = async (userId: number) => {
   if (!user) {
     throw new Error("User Not Found");
   }
+  console.log(user)
   return user;
 };
 

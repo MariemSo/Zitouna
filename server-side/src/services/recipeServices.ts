@@ -56,9 +56,15 @@ const getRecipeByIdService = async (recipeId: number) => {
         ingredients: {
           include: { ingredient: true },
         },
-        category: true,
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
         user: {
           select: {
+            id: true,
             userName: true,
           },
         },
@@ -84,9 +90,15 @@ const getAllRecipesService = async (filters: any) => {
       whereFilters.name = { contains: name, mode: "insensitive" };
     }
 
-    const orderBy = likes ? [{ likes: likes === "desc" ? "desc" : "asc" }] : undefined;
+    const orderBy = likes ? {likes: likes ==="des"?"dec":"asc"}:undefined;
 
-    return await prisma.recipe.findMany({ where: whereFilters, orderBy });
+    return await prisma.recipe.findMany({ where: whereFilters,orderBy,include: {
+        category: {
+          select: {
+            id: true,
+            name: true,  // Include category name here
+          },
+        },}, });
   } catch (err) {
     console.error("Error fetching recipes:", err);
     throw new Error("Database error while retrieving recipes");
